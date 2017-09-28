@@ -6,12 +6,12 @@
 	//var_dump ($monthNamesEt);
 	//echo $monthNamesEt [8];
 	$monthNow = $monthNamesEt[date("n")-1];
-	
+
 	//hinda päeva osa, võrdlemine < > <= >= == !=
 	$hourNow =  date("H");
 	$partOfDay = "";
 	if ($hourNow < 8){
-		$partOfDay = "varajane hommik"; 
+		$partOfDay = "varajane hommik";
 	}
 	if ($hourNow >= 8 and $hourNow < 16){
 		$partOfDay = "koolipäev";
@@ -20,7 +20,7 @@
 		$partOfDay =  "vaba aeg";
 	}
 	//echo $partOfDay;
-	
+
 	//vanusega tegelemine
 	//var_dump($_POST);
 	//echo $_POST["birthYear"];
@@ -30,14 +30,14 @@
 		$myBirthYear = $_POST["birthYear"];
 		$myAge = date("Y") - $_POST["birthYear"];
 		$ageNotice = "<p>Te olete umbkaudu " .$myAge ." aastat vana.</p>";
-		
+
 		$ageNotice .= "<p>Olete elanud järgnevatel aastatel:</p> <ol>";
 		for ($i = $myBirthYear; $i <= date("Y"); $i ++){
 			$ageNotice .= "<li>" .$i ."</li>";
 		}
 		$ageNotice .= "</ol>";
 	}
-	
+
 	/*for ($i = 0; $i < 5; $i ++){
 		echo "hue";
 	}*/
@@ -52,7 +52,7 @@
 </head>
 <body style="background-color:#FF0033;">
 	<h1><?php echo $myName ." " . $myFamilyName; ?>, veebiprogrammeerimine</h1>
-	<p>Seda veebilehte uuendatakse vähemalt korra nädalas!</p>
+	<p>Seda veebilehte uuendatakse vähemalt korra nädalas!!!</p>
 	<p>See veebileht oli loodud õppimis otstarbeks!</p>
 	<?php
 		echo "<p>Algas PHP õppimine.</p>";
@@ -71,6 +71,6 @@
 			echo $ageNotice;
 		}
 	?>
-	
+
 </body>
 </html>
