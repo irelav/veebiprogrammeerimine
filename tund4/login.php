@@ -1,4 +1,6 @@
 <?php
+	require("../../../config.php");
+	//echo $serverHost;
 	$signupFirstName = "";
 	$signupFamilyName = "";
 	$signupEmail = "";
@@ -101,6 +103,24 @@
 	//UUE KASUTAJA LISAMINE ANDMEBAASI
 	if(empty($signupFirstNameError) and empty($signupFamilyNameError) and empty($signupBirthDayError) and empty($signupGenderError) and empty($signupEmailError) and empty($signupPasswordError) and !empty($_POST["signupPassword"])){
 		echo "Hakkan andmeid salvestama!";
+		$signupPassword = hash("sha512", $_POST["signupPassword"]);
+		
+		//ühendus serveriga
+		$database = "if17_valevale";
+		$mysqli = new mysqli($serverHost, $serverUsername, $serverPassword, $database);
+		//käsk serverile
+		$stmt = $mysqli->prepare("INSERT INTO vpusers (firstname, lastname, birthday, gender, email, password) VALUES (?, ?, ?, ?, ?, ?)");
+		echo $mysqli->error;
+		//s - string ehk tekst
+		//i - integer ehk täisarv
+		//d - decimal, ujukomaarv
+		$stmt->bind_param("sssiss", $signupFirstName, $signupFamilyName, $signupBirthDate, $gender, $signupEmail, $signupPassword);
+		//$stmt->execute();
+		if($stmt->execute()){
+			echo "Läks väga hästi!";
+		} else { 
+			echo "Tekkis viga: " .$stmt->error;
+		}
 	}
 	$signupFirstNameError = "";
 	$signupFamilyNameError = "";
