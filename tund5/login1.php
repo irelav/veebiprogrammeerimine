@@ -90,6 +90,11 @@
 			$signupEmailError ="NB! Väli on kohustuslik!";
 		} else {
 			$signupEmail = $_POST["signupEmail"];
+			$signupEmail = trim($signupEmail); //eemaldab lõpust tühiku, tab vms.
+			$signupEmail = stripslashes($signupEmail); //eemaldab keelatud märgid
+			
+			$signupEmail = filter_var($signupEmail, FILTER_SANITIZE_EMAIl);
+			$signupEmail = filter_var($signupEmail, FILTER_SANITIZE_EMAIl);
 		}
 	}
 	
