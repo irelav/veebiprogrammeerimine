@@ -1,5 +1,6 @@
 <?php
 	require("../../../config.php");
+	require("functions.php");
 	//echo $serverHost;
 	$signupFirstName = "";
 	$signupFamilyName = "";
@@ -37,7 +38,7 @@
 		if (empty($_POST["signupFirstName"])){
 			$signupFirstNameError ="NB! Väli on kohustuslik!";
 		} else {
-			$signupFirstName = $_POST["signupFirstName"];
+			$signupFirstName = test_input($_POST["signupFirstName"]);
 		}
 	}
 	
@@ -46,7 +47,7 @@
 		if (empty($_POST["signupFamilyName"])){
 			$signupFamilyNameError ="NB! Väli on kohustuslik!";
 		} else {
-			$signupFamilyName = $_POST["signupFamilyName"];
+			$signupFamilyName = test_input($_POST["signupFamilyName"]);
 		}
 	}
 	
@@ -89,12 +90,9 @@
 		if (empty ($_POST["signupEmail"])){
 			$signupEmailError ="NB! Väli on kohustuslik!";
 		} else {
-			$signupEmail = $_POST["signupEmail"];
-			$signupEmail = trim($signupEmail); //eemaldab lõpust tühiku, tab vms.
-			$signupEmail = stripslashes($signupEmail); //eemaldab keelatud märgid
-			
-			$signupEmail = filter_var($signupEmail, FILTER_SANITIZE_EMAIl);
-			$signupEmail = filter_var($signupEmail, FILTER_SANITIZE_EMAIl);
+			$signupEmail = test_input($_POST["signupEmail"]);
+			$signupEmail = filter_var($signupEmail, FILTER_SANITIZE_EMAIL);
+			$signupEmail = filter_var($signupEmail, FILTER_VALIDATE_EMAIL);
 		}
 	}
 	
@@ -121,24 +119,9 @@
 		//krüpteerin parooli
 		$signupPassword = hash("sha512", $_POST["signupPassword"]);
 		//echo "\n Parooli " .$_POST["signupPassword"] ." räsi on: " .$signupPassword;
-		//loome andmebaasiühenduse
-		$database = "if17_valevale";
-		$mysqli = new mysqli($serverHost, $serverUsername, $serverPassword, $database);
-		//valmistame ette käsu andmebaasiserverile
-		$stmt = $mysqli->prepare("INSERT INTO vpusers (firstname, lastname, birthday, gender, email, password) VALUES (?, ?, ?, ?, ?, ?)");
-		echo $mysqli->error;
-		//s - string
-		//i - integer
-		//d - decimal
-		$stmt->bind_param("sssiss", $signupFirstName, $signupFamilyName, $signupBirthDate, $gender, $signupEmail, $signupPassword);
-		//$stmt->execute();
-		if ($stmt->execute()){
-			echo "\n Õnnestus!";
-		} else {
-			echo "\n Tekkis viga : " .$stmt->error;
-		}
-		$stmt->close();
-		$mysqli->close();
+		
+		signUp($signupFirstName, $signupFamilyName, $signupBirthDate, $gender, $signupEmail, $signupPassword);
+		
 	}
 	
 	}//uue kasutaja loomise lõpp
@@ -185,7 +168,7 @@
 	}
 	$signupYearSelectHTML.= "</select> \n";
 	
-	
+
 ?>
 <!DOCTYPE html>
 <html lang="et">
@@ -193,7 +176,7 @@
 	<meta charset="utf-8">
 	<title>Sisselogimine või uue kasutaja loomine</title>
 </head>
-<body style="background-color:#0099FF;">>
+<body style="background-color:#0099FF;">
 	<h1>Logi sisse!</h1>
 	<p>Siin harjutame sisselogimise funktsionaalsust.</p>
 	
