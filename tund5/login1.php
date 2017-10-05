@@ -2,6 +2,13 @@
 	require("../../../config.php");
 	require("functions.php");
 	//echo $serverHost;
+	
+	//kui on sisseloginud, siis pealehele
+	if(isset($_SESSION["userId"])){
+		header("Location: login1.php");
+		exit();
+	}
+	
 	$signupFirstName = "";
 	$signupFamilyName = "";
 	$gender = "";
@@ -12,6 +19,8 @@
 	$signupBirthDate = "";
 	
 	$loginEmail = "";
+	$notice = "";
+	
 	$signupFirstNameError = "";
 	$signupFamilyNameError = "";
 	$signupBirthDayError = "";
@@ -21,6 +30,9 @@
 	
 	$loginEmailError ="";
 	
+	//kas klõpsati sisselogimise nuppu
+	if(isset($_POST["signinButton"])){
+	
 	//kas on kasutajanimi sisestatud
 	if (isset ($_POST["loginEmail"])){
 		if (empty ($_POST["loginEmail"])){
@@ -29,6 +41,12 @@
 			$loginEmail = $_POST["loginEmail"];
 		}
 	}
+	
+	if(!empty($loginEmail) and !empty($_POST["loginPassword"])){
+		//echo "Logime sisse!";
+		$notice = signIn($loginEmail, $_POST["loginPassword"]);
+	}
+	}//kas sisselogimine lõppeb
 	
 	//kas luuakse uut kasutajat, vajutati nuppu
 	if(isset($_POST["signupButton"])){
@@ -186,7 +204,7 @@
 		<br><br>
 		<input name="loginPassword" placeholder="Salasõna" type="password"><span></span>
 		<br><br>
-		<input name=signinButton type="submit" value="Logi sisse">
+		<input name=signinButton type="submit" value="Logi sisse"><span><?php echo $notice; ?></span>
 	</form>
 	
 	<h1>Loo kasutaja</h1>
