@@ -29,9 +29,6 @@
 		}
 	}
 	
-	//kas luuakse uut kasutajat, vajutati nuppu
-	if(isset($_POST["signupButton"])){
-		
 	//kontrollime, kas kirjutati eesnimi
 	if (isset ($_POST["signupFirstName"])){
 		if (empty ($_POST["signupFirstName"])){
@@ -131,7 +128,7 @@
 	$signupGenderError = "";
 	$signupEmailError = "";
 	$signupPasswordError = "";
-	}//uue kasutaja loomise lõpp
+	
 	//Tekitame kuupäeva valiku
 	$signupDaySelectHTML = "";
 	$signupDaySelectHTML .= '<select name="signupBirthDay">' ."\n";
@@ -190,7 +187,7 @@
 		<br><br>
 		<input name="loginPassword" placeholder="Salasõna" type="password">
 		<br><br>
-		<input type="signinButton" value="Logi sisse">
+		<input name=signupButton type="submit" value="Logi sisse">
 	</form>
 	
 	<h1>Loo kasutaja</h1>
@@ -198,7 +195,7 @@
 	
 	<form method="POST">
 		<label>Eesnimi </label>
-		<input name="signupFirstName" type="text" value="<?php echo $signupFirstName; ?>">
+		<input name="loginEmail" type="email" value="<?php echo $loginEmail; ?>"><span><?php echo $loginEmailError; ?></span>
 		<span><?php echo $signupFirstNameError; ?></span>
 		<br>
 		<label>Perekonnanimi </label>
@@ -227,7 +224,7 @@
 		<br><br>
 
 		
-		<input type="signupButton" value="Loo kasutaja">
+		<input type="submit" value="Loo kasutaja">
 	</form>
 		
 </body>

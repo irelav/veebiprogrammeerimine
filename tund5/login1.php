@@ -3,16 +3,14 @@
 	//echo $serverHost;
 	$signupFirstName = "";
 	$signupFamilyName = "";
-	$signupEmail = "";
 	$gender = "";
+	$signupEmail = "";
 	$signupBirthDay = null;
 	$signupBirthMonth = null;
 	$signupBirthYear = null;
-	$signupBirthDate = null;
+	$signupBirthDate = "";
 	
 	$loginEmail = "";
-	
-	//vigade muutujad
 	$signupFirstNameError = "";
 	$signupFamilyNameError = "";
 	$signupBirthDayError = "";
@@ -20,10 +18,12 @@
 	$signupEmailError = "";
 	$signupPasswordError = "";
 	
+	$loginEmailError ="";
+	
 	//kas on kasutajanimi sisestatud
 	if (isset ($_POST["loginEmail"])){
 		if (empty ($_POST["loginEmail"])){
-			$loginEmailError ="NB! Ilma selleta ei saa sisse logida!";
+			$loginEmailError ="NB! Sisselogimiseks on vajalik kasutajatunnus (e-posti aadress)!";
 		} else {
 			$loginEmail = $_POST["loginEmail"];
 		}
@@ -34,7 +34,7 @@
 		
 	//kontrollime, kas kirjutati eesnimi
 	if (isset ($_POST["signupFirstName"])){
-		if (empty ($_POST["signupFirstName"])){
+		if (empty($_POST["signupFirstName"])){
 			$signupFirstNameError ="NB! Väli on kohustuslik!";
 		} else {
 			$signupFirstName = $_POST["signupFirstName"];
@@ -43,39 +43,46 @@
 	
 	//kontrollime, kas kirjutati perekonnanimi
 	if (isset ($_POST["signupFamilyName"])){
-		if (empty ($_POST["signupFamilyName"])){
+		if (empty($_POST["signupFamilyName"])){
 			$signupFamilyNameError ="NB! Väli on kohustuslik!";
 		} else {
 			$signupFamilyName = $_POST["signupFamilyName"];
 		}
 	}
-	//kas sünnipäev on sisestatud
-	if (isset ($_POST["signupBirthDay"])){
+	
+	
+	//kas sünnikuupäev on sisestatud
+	if (isset($_POST["signupBirthDay"])){
 		$signupBirthDay = $_POST["signupBirthDay"];
 		//echo $signupBirthDay;
-	}
-	//kas kuu on sisestatud
-	if(isset($_POST["signupBirthMonth"])){
-		$signupBirthMonth = intval($_POST["signupBirthMonth"]);
-	}
-	//kas aasta on sisestatud
-	if (isset ($_POST["signupBirthYear"])){
-		$signupBirthYear = $_POST["signupBirthYear"];
-		//echo $signupBirthYear;
+	} else {
+		$signupBirthDayError = "Kuupäeva pole sisestatud!";
 	}
 	
-	//kontrollime, kas sisestatud kuupäev on valiidne
+	//kas sünnikuu on sisestatud
+	if ( isset($_POST["signupBirthMonth"]) ){
+		$signupBirthMonth = intval($_POST["signupBirthMonth"]);
+	} else {
+		$signupBirthDayError .= " Kuu pole sisestatud!";
+	}
+	
+	//kas sünniaasta on sisestatud
+	if (isset($_POST["signupBirthYear"])){
+		$signupBirthYear = $_POST["signupBirthYear"];
+		//echo $signupBirthYear;
+	} else {
+		$signupBirthDayError .= "Aasta pole sisestatud!";
+	}
+	
+	//kui sünnikuupäev on sisestatud, siis kontrollima, kas valiidne
 	if (isset($_POST["signupBirthDay"]) and isset($_POST["signupBirthMonth"]) and isset($_POST["signupBirthYear"])){
-		if (checkdate(intval($_POST["signupBirthMonth"]),intval($_POST["signupBirthDay"]), intval($_POST["signupBirthYear"]))){
+		if (checkdate(intval($_POST["signupBirthMonth"]), intval($_POST["signupBirthDay"]), intval($_POST["signupBirthYear"]))){
 			$birthDate = date_create($_POST["signupBirthMonth"] ."/" .$_POST["signupBirthDay"] ."/" .$_POST["signupBirthYear"]);
 			$signupBirthDate = date_format($birthDate, "Y-m-d");
-			echo $signupBirthDate;
 		} else {
-			echo $signupBirthDayError = "Sünnikuupäev pole valiidne!";
+			$signupBirthDayError .= " Pole korrektne kuupäev!";
 		}
-	} else {
-		echo $signupBirthDayError = "Kuupäeva ei ole määratud";
-	}
+	} 
 	
 	//kontrollime, kas kirjutati kasutajanimeks email
 	if (isset ($_POST["signupEmail"])){
@@ -103,34 +110,32 @@
 			$signupGenderError = " (Palun vali sobiv!) Määramata!";
 	}
 	
-	//UUE KASUTAJA LISAMINE ANDMEBAASI
-	if(empty($signupFirstNameError) and empty($signupFamilyNameError) and empty($signupBirthDayError) and empty($signupGenderError) and empty($signupEmailError) and empty($signupPasswordError) and !empty($_POST["signupPassword"])){
-		echo "Hakkan andmeid salvestama!";
+	//UUE KASUTAJA ANDMEBAASI KIRJUTAMINE, kui kõik on olemas	
+	if (empty($signupFirstNameError) and empty($signupFamilyNameError) and empty($signupBirthDayError) and empty($signupGenderError) and empty($signupEmailError) and empty($signupPasswordError)){
+		echo "Hakkan salvestama!";
+		//krüpteerin parooli
 		$signupPassword = hash("sha512", $_POST["signupPassword"]);
-		
-		//ühendus serveriga
+		//echo "\n Parooli " .$_POST["signupPassword"] ." räsi on: " .$signupPassword;
+		//loome andmebaasiühenduse
 		$database = "if17_valevale";
 		$mysqli = new mysqli($serverHost, $serverUsername, $serverPassword, $database);
-		//käsk serverile
+		//valmistame ette käsu andmebaasiserverile
 		$stmt = $mysqli->prepare("INSERT INTO vpusers (firstname, lastname, birthday, gender, email, password) VALUES (?, ?, ?, ?, ?, ?)");
 		echo $mysqli->error;
-		//s - string ehk tekst
-		//i - integer ehk täisarv
-		//d - decimal, ujukomaarv
+		//s - string
+		//i - integer
+		//d - decimal
 		$stmt->bind_param("sssiss", $signupFirstName, $signupFamilyName, $signupBirthDate, $gender, $signupEmail, $signupPassword);
 		//$stmt->execute();
-		if($stmt->execute()){
-			echo "Läks väga hästi!";
-		} else { 
-			echo "Tekkis viga: " .$stmt->error;
+		if ($stmt->execute()){
+			echo "\n Õnnestus!";
+		} else {
+			echo "\n Tekkis viga : " .$stmt->error;
 		}
+		$stmt->close();
+		$mysqli->close();
 	}
-	$signupFirstNameError = "";
-	$signupFamilyNameError = "";
-	$signupBirthDayError = "";
-	$signupGenderError = "";
-	$signupEmailError = "";
-	$signupPasswordError = "";
+	
 	}//uue kasutaja loomise lõpp
 	//Tekitame kuupäeva valiku
 	$signupDaySelectHTML = "";
@@ -145,26 +150,27 @@
 		
 	}
 	$signupDaySelectHTML.= "</select> \n";
-	//tekitan sünnikuu valiku
-	$monthNamesEt = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
+	
+	//Tekitame sünnikuu valiku
 	$signupMonthSelectHTML = "";
+	$monthNamesEt = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
 	$signupMonthSelectHTML .= '<select name="signupBirthMonth">' ."\n";
 	$signupMonthSelectHTML .= '<option value="" selected disabled>kuu</option>' ."\n";
-	foreach($monthNamesEt as $key=>$month){
-		if($key + 1 === $signupBirthMonth){
-			$signupMonthSelectHTML .= '<option value="' .($key + 1) .'" selected>' .$month ." </option> \n";
+	foreach ($monthNamesEt as $key=>$month){
+		if ($key + 1 === $signupBirthMonth){
+			$signupMonthSelectHTML .= '<option value="' .($key + 1) .'" selected>' .$month .'</option>' ."\n";
 		} else {
-			$signupMonthSelectHTML .= '<option value="' .($key + 1) .'">' .$month ."</option> \n";
+		$signupMonthSelectHTML .= '<option value="' .($key + 1) .'">' .$month .'</option>' ."\n";
 		}
 	}
-	$signupMonthSelectHTML .="</select> \n";
+	$signupMonthSelectHTML .= "</select> \n";
 	
 	//Tekitame aasta valiku
 	$signupYearSelectHTML = "";
 	$signupYearSelectHTML .= '<select name="signupBirthYear">' ."\n";
 	$signupYearSelectHTML .= '<option value="" selected disabled>aasta</option>' ."\n";
 	$yearNow = date("Y");
-	for ($i = ($yearNow - 16); $i > 1900; $i --){
+	for ($i = $yearNow; $i > 1900; $i --){
 		if($i == $signupBirthYear){
 			$signupYearSelectHTML .= '<option value="' .$i .'" selected>' .$i .'</option>' ."\n";
 		} else {
@@ -173,6 +179,8 @@
 		
 	}
 	$signupYearSelectHTML.= "</select> \n";
+	
+	
 ?>
 <!DOCTYPE html>
 <html lang="et">
@@ -180,23 +188,23 @@
 	<meta charset="utf-8">
 	<title>Sisselogimine või uue kasutaja loomine</title>
 </head>
-<body style="background-color:#0099FF;">
+<body style="background-color:#0099FF;">>
 	<h1>Logi sisse!</h1>
 	<p>Siin harjutame sisselogimise funktsionaalsust.</p>
 	
-	<form method="POST">
+	<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 		<label>Kasutajanimi (E-post): </label>
-		<input name="loginEmail" type="email" value="<?php echo $loginEmail; ?>">
+		<input name="loginEmail" type="email" value="<?php echo $loginEmail; ?>"><span><?php echo $loginEmailError; ?></span>
 		<br><br>
-		<input name="loginPassword" placeholder="Salasõna" type="password">
+		<input name="loginPassword" placeholder="Salasõna" type="password"><span></span>
 		<br><br>
-		<input type="signinButton" value="Logi sisse">
+		<input name=signinButton type="submit" value="Logi sisse">
 	</form>
 	
 	<h1>Loo kasutaja</h1>
 	<p>Kui pole veel kasutajat....</p>
 	
-	<form method="POST">
+	<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 		<label>Eesnimi </label>
 		<input name="signupFirstName" type="text" value="<?php echo $signupFirstName; ?>">
 		<span><?php echo $signupFirstNameError; ?></span>
@@ -227,7 +235,7 @@
 		<br><br>
 
 		
-		<input type="signupButton" value="Loo kasutaja">
+		<input name=signupButton type="submit" value="Loo kasutaja">
 	</form>
 		
 </body>
