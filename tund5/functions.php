@@ -56,6 +56,8 @@
 		$stmt->close();
 		$mysqli->close();
 	}
+	
+	
 	//sisestuse kontrollimine
 	function test_input($data){
 		$data = trim($data); //eemaldab lõpust tühiku, tab vms.
