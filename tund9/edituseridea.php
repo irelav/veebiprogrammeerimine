@@ -36,7 +36,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Andrus Rinde veebiprogrammeerimine</title>
+	<title>Valeri Valentinov veebiprogrammeerimine</title>
 </head>
 <body>
 	<h1>Head mõtted</h1>
