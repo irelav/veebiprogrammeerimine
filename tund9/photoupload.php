@@ -22,8 +22,8 @@
 	$imageFileType = "";
 	$maxWidth = 600;
 	$maxHeight = 400;
-	$marginBottom = 10;
-	$marginRight = 10;
+	$marginBottom = 0;
+	$marginRight = 0;
 	
 	//kas vajutati nuppu
 	if(isset($_POST["submit"])) {
@@ -101,12 +101,14 @@
 				$myImage = resizeImage($myTempImage, $imageWidth, $imageHeight, round($imageWidth / $sizeRatio), round($imageHeight / $sizeRatio));
 				
 				//lisame vesimärgi
-				$stamp = imagecreatefrompng("../../graphics/PK-logo.png");
+				$stamp = imagecreatefrompng("../../graphics/hmv_logo.png");
 				$stampWidth = imagesx($stamp);
 				$stampHeight = imagesy($stamp);
+				$stampX = imagesx($myImage)- $stampWidth - $marginRight;
+				$stampY = imagesx($myImage)- $stampHeight - $marginBottom;
 				$stampPosX = round($imageWidth / $sizeRatio) - $stampWidth - $marginRight;
 				$stampPosY = round($imageHeight / $sizeRatio) - $stampHeight - $marginBottom;
-				imagecopy($myImage, $stamp, $stampPosX, $stampPosY, 0, 0, $stampWidth, $stampHeight);
+				imagecopy($myImage, $stamp, $stampX, $stampY, 0, 0, $stampWidth, $stampHeight);
 				
 				//lisame teksti
 				$textToImage = "veebiprogrammeerimine";
